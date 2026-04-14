@@ -9,7 +9,7 @@ async function main() {
       name: 'Electronics',
       slug: 'electronics',
       description: 'Latest electronic gadgets and devices',
-      image: '/images/categories/electronics.jpg',
+      image: 'https://images.unsplash.com/photo-1498049794561-7780e7231661?w=600&h=400&fit=crop&q=80',
     },
   });
 
@@ -18,7 +18,7 @@ async function main() {
       name: 'Clothing',
       slug: 'clothing',
       description: 'Fashion and apparel for all ages',
-      image: '/images/categories/clothing.jpg',
+      image: 'https://images.unsplash.com/photo-1445205170230-053b83016050?w=600&h=400&fit=crop&q=80',
     },
   });
 
@@ -27,7 +27,7 @@ async function main() {
       name: 'Home & Garden',
       slug: 'home-garden',
       description: 'Everything for your home and garden',
-      image: '/images/categories/home.jpg',
+      image: 'https://images.unsplash.com/photo-1555041469-a586c61ea9bc?w=600&h=400&fit=crop&q=80',
     },
   });
 
@@ -36,7 +36,52 @@ async function main() {
       name: 'Sports & Outdoors',
       slug: 'sports-outdoors',
       description: 'Sports equipment and outdoor gear',
-      image: '/images/categories/sports.jpg',
+      image: 'https://images.unsplash.com/photo-1461896836934-ffe607ba8211?w=600&h=400&fit=crop&q=80',
+    },
+  });
+
+  // Create suppliers
+  const techGearSupplier = await prisma.supplier.create({
+    data: {
+      name: 'TechGear Solutions',
+      email: 'info@techgear.com',
+      phone: '+1-555-0123',
+      company: 'TechGear Solutions Inc.',
+      region: 'North America',
+      country: 'United States',
+    },
+  });
+
+  const fashionHubSupplier = await prisma.supplier.create({
+    data: {
+      name: 'Fashion Hub',
+      email: 'contact@fashionhub.com',
+      phone: '+44-20-1234-5678',
+      company: 'Fashion Hub Ltd.',
+      region: 'Europe',
+      country: 'United Kingdom',
+    },
+  });
+
+  const globalSportsSupplier = await prisma.supplier.create({
+    data: {
+      name: 'Global Sports',
+      email: 'sales@globalsports.com',
+      phone: '+61-2-9876-5432',
+      company: 'Global Sports Pty Ltd',
+      region: 'Australia',
+      country: 'Australia',
+    },
+  });
+
+  const homeEssentialsSupplier = await prisma.supplier.create({
+    data: {
+      name: 'Home Essentials',
+      email: 'info@homeessentials.ae',
+      phone: '+971-4-123-4567',
+      company: 'Home Essentials FZE',
+      region: 'Middle East',
+      country: 'UAE',
     },
   });
 
@@ -52,12 +97,13 @@ async function main() {
         sku: 'SW-001',
         stock: 50,
         images: JSON.stringify([
-          '/images/products/smartwatch-1.jpg',
-          '/images/products/smartwatch-2.jpg',
-          '/images/products/smartwatch-3.jpg'
+          'https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=600&h=600&fit=crop&q=80',
+          'https://images.unsplash.com/photo-1546868871-7041f2a55e12?w=600&h=600&fit=crop&q=80',
+          'https://images.unsplash.com/photo-1508685096489-7aacd43bd3b1?w=600&h=600&fit=crop&q=80'
         ]),
         isFeatured: true,
         categoryId: electronics.id,
+        supplierId: techGearSupplier.id,
       },
       {
         name: 'Wireless Headphones',
@@ -68,11 +114,12 @@ async function main() {
         sku: 'WH-002',
         stock: 30,
         images: JSON.stringify([
-          '/images/products/headphones-1.jpg',
-          '/images/products/headphones-2.jpg'
+          'https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=600&h=600&fit=crop&q=80',
+          'https://images.unsplash.com/photo-1484704849700-f032a568e944?w=600&h=600&fit=crop&q=80'
         ]),
         isFeatured: true,
         categoryId: electronics.id,
+        supplierId: techGearSupplier.id,
       },
       {
         name: 'Digital Camera 4K',
@@ -83,11 +130,12 @@ async function main() {
         sku: 'DC-003',
         stock: 15,
         images: JSON.stringify([
-          '/images/products/camera-1.jpg',
-          '/images/products/camera-2.jpg'
+          'https://images.unsplash.com/photo-1516035069371-29a1b244cc32?w=600&h=600&fit=crop&q=80',
+          'https://images.unsplash.com/photo-1502920917128-1aa500764cbd?w=600&h=600&fit=crop&q=80'
         ]),
         isFeatured: true,
         categoryId: electronics.id,
+        supplierId: techGearSupplier.id,
       },
       {
         name: 'Classic T-Shirt',
@@ -98,11 +146,12 @@ async function main() {
         sku: 'TS-004',
         stock: 100,
         images: JSON.stringify([
-          '/images/products/tshirt-1.jpg',
-          '/images/products/tshirt-2.jpg'
+          'https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?w=600&h=600&fit=crop&q=80',
+          'https://images.unsplash.com/photo-1583743814966-8936f5b7be1a?w=600&h=600&fit=crop&q=80'
         ]),
         isFeatured: false,
         categoryId: clothing.id,
+        supplierId: fashionHubSupplier.id,
       },
       {
         name: 'Denim Jeans',
@@ -113,11 +162,12 @@ async function main() {
         sku: 'DJ-005',
         stock: 75,
         images: JSON.stringify([
-          '/images/products/jeans-1.jpg',
-          '/images/products/jeans-2.jpg'
+          'https://images.unsplash.com/photo-1542272604-787c3835535d?w=600&h=600&fit=crop&q=80',
+          'https://images.unsplash.com/photo-1541099649105-f69ad21f3246?w=600&h=600&fit=crop&q=80'
         ]),
         isFeatured: false,
         categoryId: clothing.id,
+        supplierId: fashionHubSupplier.id,
       },
       {
         name: 'Winter Jacket',
@@ -128,11 +178,12 @@ async function main() {
         sku: 'WJ-006',
         stock: 40,
         images: JSON.stringify([
-          '/images/products/jacket-1.jpg',
-          '/images/products/jacket-2.jpg'
+          'https://images.unsplash.com/photo-1551028719-00167b16eac5?w=600&h=600&fit=crop&q=80',
+          'https://images.unsplash.com/photo-1548126032-079a0fb0099d?w=600&h=600&fit=crop&q=80'
         ]),
         isFeatured: true,
         categoryId: clothing.id,
+        supplierId: fashionHubSupplier.id,
       },
       {
         name: 'Office Chair',
@@ -143,11 +194,12 @@ async function main() {
         sku: 'OC-007',
         stock: 25,
         images: JSON.stringify([
-          '/images/products/chair-1.jpg',
-          '/images/products/chair-2.jpg'
+          'https://images.unsplash.com/photo-1505843490538-5133c6c7d0e1?w=600&h=600&fit=crop&q=80',
+          'https://images.unsplash.com/photo-1586023492125-27b2c045efd7?w=600&h=600&fit=crop&q=80'
         ]),
         isFeatured: false,
         categoryId: home.id,
+        supplierId: homeEssentialsSupplier.id,
       },
       {
         name: 'Yoga Mat',
@@ -158,49 +210,12 @@ async function main() {
         sku: 'YM-008',
         stock: 60,
         images: JSON.stringify([
-          '/images/products/yoga-mat-1.jpg',
-          '/images/products/yoga-mat-2.jpg'
+          'https://images.unsplash.com/photo-1544367567-0f2fcb009e0b?w=600&h=600&fit=crop&q=80',
+          'https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=600&h=600&fit=crop&q=80'
         ]),
         isFeatured: false,
         categoryId: sports.id,
-      },
-    ],
-  });
-
-  // Create suppliers
-  await prisma.supplier.createMany({
-    data: [
-      {
-        name: 'TechGear Solutions',
-        email: 'info@techgear.com',
-        phone: '+1-555-0123',
-        company: 'TechGear Solutions Inc.',
-        region: 'North America',
-        country: 'United States',
-      },
-      {
-        name: 'Fashion Hub',
-        email: 'contact@fashionhub.com',
-        phone: '+44-20-1234-5678',
-        company: 'Fashion Hub Ltd.',
-        region: 'Europe',
-        country: 'United Kingdom',
-      },
-      {
-        name: 'Global Sports',
-        email: 'sales@globalsports.com',
-        phone: '+61-2-9876-5432',
-        company: 'Global Sports Pty Ltd',
-        region: 'Australia',
-        country: 'Australia',
-      },
-      {
-        name: 'Home Essentials',
-        email: 'info@homeessentials.ae',
-        phone: '+971-4-123-4567',
-        company: 'Home Essentials FZE',
-        region: 'Middle East',
-        country: 'UAE',
+        supplierId: globalSportsSupplier.id,
       },
     ],
   });

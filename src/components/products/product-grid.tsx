@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Star, ShoppingCart, Heart } from 'lucide-react';
 import { useCartStore } from '@/stores/cart-store';
+import { SafeImage } from '@/components/ui/safe-image';
 
 interface Product {
   id: string;
@@ -34,7 +35,7 @@ export function ProductGrid({ products }: ProductGridProps) {
       id: product.id,
       name: product.name,
       price: product.price,
-      image: product.images[0] || '/placeholder-product.jpg',
+      image: product.images[0] || '/placeholder-product.svg',
       slug: product.slug,
       sku: product.sku,
     });
@@ -48,10 +49,13 @@ export function ProductGrid({ products }: ProductGridProps) {
             <div className="relative">
               <Link href={`/products/${product.slug}`}>
                 <div className="aspect-square bg-gray-100 rounded-t-lg overflow-hidden">
-                  <img
-                    src={product.images[0] || '/placeholder-product.jpg'}
+                  <SafeImage
+                    src={product.images[0] || '/placeholder-product.svg'}
                     alt={product.name}
-                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                    fill
+                    sizes="(max-width: 1024px) 50vw, 33vw"
+                    className="object-cover group-hover:scale-105 transition-transform duration-300"
+                    fallbackSrc="/placeholder-product.svg"
                   />
                 </div>
               </Link>

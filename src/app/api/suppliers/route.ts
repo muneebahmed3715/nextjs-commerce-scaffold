@@ -14,7 +14,6 @@ export async function GET(request: NextRequest) {
           isActive: true,
           region: {
             contains: region,
-            mode: 'insensitive',
           },
         },
         orderBy: {

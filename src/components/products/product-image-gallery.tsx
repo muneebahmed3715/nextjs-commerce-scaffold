@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { ChevronLeft, ChevronRight, ZoomIn } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogTrigger } from '@/components/ui/dialog';
+import { SafeImage } from '@/components/ui/safe-image';
 
 interface ProductImageGalleryProps {
   images: string[];
@@ -11,7 +12,6 @@ interface ProductImageGalleryProps {
 
 export function ProductImageGallery({ images }: ProductImageGalleryProps) {
   const [selectedImage, setSelectedImage] = useState(0);
-  const [isZoomed, setIsZoomed] = useState(false);
 
   const handlePrevious = () => {
     setSelectedImage((prev) => (prev - 1 + images.length) % images.length);
@@ -36,10 +36,13 @@ export function ProductImageGallery({ images }: ProductImageGalleryProps) {
     <div className="space-y-4">
       {/* Main Image */}
       <div className="relative aspect-square bg-gray-100 rounded-lg overflow-hidden group">
-        <img
+        <SafeImage
           src={images[selectedImage]}
           alt={`Product image ${selectedImage + 1}`}
-          className="w-full h-full object-cover"
+          fill
+          sizes="(max-width: 1024px) 100vw, 50vw"
+          className="object-cover"
+          fallbackSrc="/placeholder-product.svg"
         />
         
         {/* Navigation Buttons */}
@@ -76,10 +79,14 @@ export function ProductImageGallery({ images }: ProductImageGalleryProps) {
             </Button>
           </DialogTrigger>
           <DialogContent className="max-w-4xl max-h-[90vh] p-0">
-            <img
+            <SafeImage
               src={images[selectedImage]}
               alt={`Product image ${selectedImage + 1}`}
+              width={1200}
+              height={1200}
+              sizes="90vw"
               className="w-full h-full object-contain"
+              fallbackSrc="/placeholder-product.svg"
             />
           </DialogContent>
         </Dialog>
@@ -92,16 +99,20 @@ export function ProductImageGallery({ images }: ProductImageGalleryProps) {
             <button
               key={index}
               onClick={() => setSelectedImage(index)}
-              className={`flex-shrink-0 w-20 h-20 rounded-lg overflow-hidden border-2 transition-colors ${
+              className={`shrink-0 w-20 h-20 rounded-lg overflow-hidden border-2 transition-colors ${
                 selectedImage === index
                   ? 'border-primary'
                   : 'border-gray-200 hover:border-gray-300'
               }`}
             >
-              <img
+              <SafeImage
                 src={image}
                 alt={`Thumbnail ${index + 1}`}
+                width={80}
+                height={80}
+                sizes="80px"
                 className="w-full h-full object-cover"
+                fallbackSrc="/placeholder-product.svg"
               />
             </button>
           ))}

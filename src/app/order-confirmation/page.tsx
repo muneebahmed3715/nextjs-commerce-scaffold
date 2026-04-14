@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { Suspense, useEffect, useState } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import { Header } from '@/components/layout/header';
@@ -19,7 +19,7 @@ import {
   HelpCircle
 } from 'lucide-react';
 
-export default function OrderConfirmationPage() {
+function OrderConfirmationContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const [orderNumber, setOrderNumber] = useState('');
@@ -125,6 +125,7 @@ export default function OrderConfirmationPage() {
                     </div>
                   </div>
                 </div>
+              </div>
               </CardContent>
           </Card>
 
@@ -227,5 +228,13 @@ export default function OrderConfirmationPage() {
       </main>
       <Footer />
     </div>
+  );
+}
+
+export default function OrderConfirmationPage() {
+  return (
+    <Suspense fallback={<div className="min-h-screen bg-background" />}>
+      <OrderConfirmationContent />
+    </Suspense>
   );
 }

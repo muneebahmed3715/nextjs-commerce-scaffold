@@ -100,6 +100,8 @@ export default function SignInPage() {
         if (data.user) {
           localStorage.setItem('userData', JSON.stringify(data.user));
         }
+
+        window.dispatchEvent(new Event('auth-state-changed'));
         
         // Redirect to account page or previous page
         const returnUrl = new URLSearchParams(window.location.search).get('return') || '/account';

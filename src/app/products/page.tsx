@@ -10,6 +10,7 @@ import { ProductSort } from '@/components/products/product-sort';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Toaster } from '@/components/ui/toaster';
+import { parseCategorySlug } from '@/lib/product-categories';
 
 interface Product {
   id: string;
@@ -22,23 +23,66 @@ interface Product {
   stock: number;
   images: string[];
   isFeatured: boolean;
+  createdAt: string;
   category: {
     name: string;
     slug: string;
   };
 }
 
+interface ProductFiltersState {
+  category: string;
+  priceRange: [number, number];
+  inStock: boolean;
+}
+
+interface CategoryCountItem {
+  slug: string;
+  productCount: number;
+}
+
 function ProductsPageContent() {
   const searchParams = useSearchParams();
-  const category = searchParams.get('category');
+  const category = parseCategorySlug(searchParams.get('category'));
   const [products, setProducts] = useState<Product[]>([]);
+  const [categoryCounts, setCategoryCounts] = useState<Record<string, number>>({});
   const [loading, setLoading] = useState(true);
   const [sortBy, setSortBy] = useState('featured');
-  const [filters, setFilters] = useState({
+  const [filters, setFilters] = useState<ProductFiltersState>({
     category: category || '',
     priceRange: [0, 1000],
     inStock: true,
   });
+
+  useEffect(() => {
+    setFilters((previous) => ({
+      ...previous,
+      category: category || '',
+    }));
+  }, [category]);
+
+  useEffect(() => {
+    const fetchCategoryCounts = async () => {
+      try {
+        const response = await fetch('/api/categories');
+        if (!response.ok) {
+          return;
+        }
+
+        const data: CategoryCountItem[] = await response.json();
+        const counts = data.reduce<Record<string, number>>((accumulator, item) => {
+          accumulator[item.slug] = item.productCount;
+          return accumulator;
+        }, {});
+
+        setCategoryCounts(counts);
+      } catch (error) {
+        console.error('Error fetching category counts:', error);
+      }
+    };
+
+    fetchCategoryCounts();
+  }, []);
 
   useEffect(() => {
     const fetchProducts = async () => {
@@ -47,9 +91,6 @@ function ProductsPageContent() {
         const params = new URLSearchParams();
         if (filters.category) {
           params.append('category', filters.category);
-        }
-        if (sortBy === 'featured') {
-          params.append('featured', 'true');
         }
         
         const response = await fetch(`/api/products?${params.toString()}`);
@@ -70,12 +111,22 @@ function ProductsPageContent() {
           }
           
           // Apply sorting
-          if (sortBy === 'price-low') {
+          if (sortBy === 'featured') {
+            filteredProducts.sort((a: Product, b: Product) => {
+              if (a.isFeatured === b.isFeatured) return 0;
+              return a.isFeatured ? -1 : 1;
+            });
+          } else if (sortBy === 'price-low') {
             filteredProducts.sort((a: Product, b: Product) => a.price - b.price);
           } else if (sortBy === 'price-high') {
             filteredProducts.sort((a: Product, b: Product) => b.price - a.price);
           } else if (sortBy === 'name') {
             filteredProducts.sort((a: Product, b: Product) => a.name.localeCompare(b.name));
+          } else if (sortBy === 'newest') {
+            filteredProducts.sort(
+              (a: Product, b: Product) =>
+                new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+            );
           }
           
           setProducts(filteredProducts);
@@ -106,9 +157,10 @@ function ProductsPageContent() {
 
         <div className="flex flex-col lg:flex-row gap-8">
           {/* Filters Sidebar */}
-          <div className="lg:w-64 flex-shrink-0">
+          <div className="lg:w-64 shrink-0">
             <ProductFilters 
               filters={filters} 
+              categoryCounts={categoryCounts}
               onFiltersChange={setFilters}
             />
           </div>
@@ -143,7 +195,7 @@ function ProductsPageContent() {
                 <p className="text-gray-600 mb-4">
                   Try adjusting your filters or browse all products
                 </p>
-                <Button onClick={() => setFilters({ category: '', priceRange: [0, 1000], inStock: true })}>
+                <Button onClick={() => setFilters({ category: '', priceRange: [0, 1000] as [number, number], inStock: true })}>
                   Clear Filters
                 </Button>
               </div>

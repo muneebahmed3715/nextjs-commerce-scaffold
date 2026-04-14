@@ -12,6 +12,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { SafeImage } from '@/components/ui/safe-image';
 import { 
   User, 
   Package, 
@@ -30,7 +31,8 @@ import {
   Clock,
   AlertCircle,
   Edit,
-  Plus
+  Plus,
+  Trash2
 } from 'lucide-react';
 import { toast } from 'sonner';
 
@@ -94,11 +96,80 @@ export default function AccountPage() {
       return;
     }
 
-    // Load user data
-    const parsedUser = JSON.parse(userData);
-    setUser(parsedUser);
-    setLoading(false);
+    // Load user profile with live account data
+    void loadAccountData(token, userData);
   }, [router]);
+
+  const loadAccountData = async (token: string, rawUserData: string) => {
+    setLoading(true);
+
+    try {
+      const parsedUser = JSON.parse(rawUserData) as Partial<UserProfile>;
+
+      const [ordersResponse, addressesResponse] = await Promise.all([
+        fetch('/api/account/orders', {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+          cache: 'no-store',
+        }),
+        fetch('/api/account/addresses', {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+          cache: 'no-store',
+        }),
+      ]);
+
+      const ordersData = ordersResponse.ok ? await ordersResponse.json() : [];
+      const addressesData = addressesResponse.ok ? await addressesResponse.json() : [];
+
+      const mappedOrders = Array.isArray(ordersData)
+        ? ordersData.map((order: any) => ({
+            id: order.id,
+            orderNumber: order.orderNumber,
+            status: String(order.status || '').toUpperCase(),
+            total: Number(order.total || 0),
+            createdAt: order.createdAt,
+            items: Array.isArray(order.items)
+              ? order.items.reduce(
+                  (total: number, item: { quantity?: number }) => total + Number(item.quantity || 0),
+                  0
+                )
+              : 0,
+          }))
+        : [];
+
+      const mappedAddresses = Array.isArray(addressesData)
+        ? addressesData.map((address: any) => ({
+            id: address.id,
+            type: address.type || 'Address',
+            street: address.street,
+            city: address.city,
+            state: address.state,
+            zip: address.zip,
+            country: address.country,
+            isDefault: Boolean(address.isDefault),
+          }))
+        : [];
+
+      setUser({
+        id: parsedUser.id || '',
+        name: parsedUser.name || 'Customer',
+        email: parsedUser.email || '',
+        phone: parsedUser.phone,
+        createdAt: parsedUser.createdAt || new Date().toISOString(),
+        orders: mappedOrders,
+        addresses: mappedAddresses,
+        wishlist: Array.isArray(parsedUser.wishlist) ? parsedUser.wishlist : [],
+      });
+    } catch (error) {
+      console.error('Failed to load account data:', error);
+      toast.error('Failed to load account data');
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const handleLogout = () => {
     localStorage.removeItem('authToken');
@@ -147,14 +218,14 @@ export default function AccountPage() {
   };
 
   const getStatusColor = (status: string) => {
-    switch (status) {
-      case 'delivered':
+    switch (status?.toUpperCase()) {
+      case 'DELIVERED':
         return 'bg-green-100 text-green-800';
-      case 'shipped':
+      case 'SHIPPED':
         return 'bg-blue-100 text-blue-800';
-      case 'processing':
+      case 'PROCESSING':
         return 'bg-yellow-100 text-yellow-800';
-      case 'cancelled':
+      case 'CANCELLED':
         return 'bg-red-100 text-red-800';
       default:
         return 'bg-gray-100 text-gray-800';
@@ -162,14 +233,14 @@ export default function AccountPage() {
   };
 
   const getStatusIcon = (status: string) => {
-    switch (status) {
-      case 'delivered':
+    switch (status?.toUpperCase()) {
+      case 'DELIVERED':
         return <CheckCircle className="w-4 h-4" />;
-      case 'shipped':
+      case 'SHIPPED':
         return <Truck className="w-4 h-4" />;
-      case 'processing':
+      case 'PROCESSING':
         return <Clock className="w-4 h-4" />;
-      case 'cancelled':
+      case 'CANCELLED':
         return <AlertCircle className="w-4 h-4" />;
       default:
         return <Package className="w-4 h-4" />;
@@ -460,10 +531,14 @@ export default function AccountPage() {
                     <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
                       {user.wishlist.map((item) => (
                         <div key={item.id} className="border rounded-lg p-4">
-                          <img
-                            src={item.image || '/placeholder-product.jpg'}
+                          <SafeImage
+                            src={item.image || '/placeholder-product.svg'}
                             alt={item.name}
+                            width={320}
+                            height={192}
+                            sizes="(max-width: 768px) 100vw, 320px"
                             className="w-full h-48 object-cover rounded mb-4"
+                            fallbackSrc="/placeholder-product.svg"
                           />
                           <h4 className="font-semibold mb-2 line-clamp-2">{item.name}</h4>
                           <p className="text-lg font-bold text-primary mb-4">${item.price.toFixed(2)}</p>

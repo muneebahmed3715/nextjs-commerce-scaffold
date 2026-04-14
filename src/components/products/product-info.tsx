@@ -59,7 +59,7 @@ export function ProductInfo({ product }: ProductInfoProps) {
         id: product.id,
         name: product.name,
         price: product.price,
-        image: product.images[0] || '/placeholder-product.jpg',
+        image: product.images[0] || '/placeholder-product.svg',
         slug: product.slug,
         sku: product.sku,
       });

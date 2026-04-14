@@ -7,6 +7,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
+import { SafeImage } from '@/components/ui/safe-image';
 import { 
   Search, 
   Package, 
@@ -279,7 +280,7 @@ export default function TrackOrderPage() {
                 <div className="space-y-6">
                   {orderData.timeline.map((item, index) => (
                     <div key={index} className="flex items-start space-x-4">
-                      <div className="flex-shrink-0 mt-1">
+                      <div className="shrink-0 mt-1">
                         {getStatusIcon(item.completed)}
                       </div>
                       <div className="flex-1 min-w-0">
@@ -304,10 +305,14 @@ export default function TrackOrderPage() {
                 <div className="space-y-4">
                   {orderData.items.map((item, index) => (
                     <div key={index} className="flex items-center space-x-4 p-4 border rounded-lg">
-                      <img
-                        src={item.image || '/placeholder-product.jpg'}
+                      <SafeImage
+                        src={item.image || '/placeholder-product.svg'}
                         alt={item.name}
+                        width={64}
+                        height={64}
+                        sizes="64px"
                         className="w-16 h-16 object-cover rounded"
+                        fallbackSrc="/placeholder-product.svg"
                       />
                       <div className="flex-1">
                         <h4 className="font-semibold">{item.name}</h4>

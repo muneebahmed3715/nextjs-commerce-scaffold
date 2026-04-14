@@ -29,6 +29,7 @@ import {
 } from 'lucide-react';
 import { useCartStore } from '@/stores/cart-store';
 import { toast } from 'sonner';
+import { SafeImage } from '@/components/ui/safe-image';
 
 interface CartItem {
   id: string;
@@ -51,6 +52,12 @@ interface ShippingAddress {
   isDefault: boolean;
 }
 
+interface GuestCheckoutDetails {
+  name: string;
+  email: string;
+  phone: string;
+}
+
 export default function CartPage() {
   const router = useRouter();
   const { items, updateQuantity, removeItem, clearCart, getTotalItems, getTotalPrice } = useCartStore();
@@ -61,6 +68,11 @@ export default function CartPage() {
   const [paymentMethod, setPaymentMethod] = useState('card');
   const [isProcessing, setIsProcessing] = useState(false);
   const [user, setUser] = useState<any>(null);
+  const [guestDetails, setGuestDetails] = useState<GuestCheckoutDetails>({
+    name: '',
+    email: '',
+    phone: '',
+  });
 
   useEffect(() => {
     // Check if user is logged in
@@ -139,36 +151,68 @@ export default function CartPage() {
   };
 
   const handleCheckout = async () => {
-    if (!user) {
-      toast.error('Please sign in to continue checkout');
-      router.push('/auth/signin?return=/cart');
+    if (user && !selectedAddress) {
+      toast.error('Please select a shipping address');
       return;
     }
 
-    if (!selectedAddress) {
-      toast.error('Please select a shipping address');
-      return;
+    if (!user) {
+      const trimmedName = guestDetails.name.trim();
+      const trimmedEmail = guestDetails.email.trim();
+      const trimmedPhone = guestDetails.phone.trim();
+
+      if (!trimmedName || !trimmedEmail || !trimmedPhone) {
+        toast.error('Please enter your name, email, and phone number');
+        return;
+      }
+
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      if (!emailRegex.test(trimmedEmail)) {
+        toast.error('Please enter a valid email address');
+        return;
+      }
     }
 
     setIsProcessing(true);
 
     try {
+      const resolvedShippingAddress = user
+        ? shippingAddresses.find((addr) => addr.id === selectedAddress)
+        : {
+            name: guestDetails.name.trim(),
+            street: 'Guest checkout',
+            city: 'N/A',
+            state: 'N/A',
+            zip: 'N/A',
+            country: 'N/A',
+            email: guestDetails.email.trim(),
+            phone: guestDetails.phone.trim(),
+          };
+
       const orderData = {
         items: items,
-        shippingAddress: shippingAddresses.find(addr => addr.id === selectedAddress),
+        shippingAddress: resolvedShippingAddress,
         shippingMethod,
         paymentMethod,
         subtotal: getTotalPrice(),
         tax: calculateTax(),
         shipping: calculateShipping(),
-        total: calculateTotal()
+        total: calculateTotal(),
+        guestInfo: !user
+          ? {
+              name: guestDetails.name.trim(),
+              email: guestDetails.email.trim(),
+              phone: guestDetails.phone.trim(),
+            }
+          : undefined,
       };
 
+      const authToken = localStorage.getItem('authToken');
       const response = await fetch('/api/orders', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${localStorage.getItem('authToken')}`
+          ...(authToken ? { Authorization: `Bearer ${authToken}` } : {}),
         },
         body: JSON.stringify(orderData)
       });
@@ -177,6 +221,7 @@ export default function CartPage() {
 
       if (response.ok) {
         clearCart();
+        window.alert('Your order has been placed successfully.');
         toast.success('Order placed successfully!');
         router.push(`/order-confirmation?order=${data.orderNumber}`);
       } else {
@@ -228,10 +273,14 @@ export default function CartPage() {
                 <div className="space-y-4">
                   {items.map((item) => (
                     <div key={item.id} className="flex items-center space-x-4 p-4 border rounded-lg">
-                      <img
-                        src={item.image || '/placeholder-product.jpg'}
+                      <SafeImage
+                        src={item.image || '/placeholder-product.svg'}
                         alt={item.name}
+                        width={80}
+                        height={80}
+                        sizes="80px"
                         className="w-20 h-20 object-cover rounded"
+                        fallbackSrc="/placeholder-product.svg"
                       />
                       
                       <div className="flex-1">
@@ -386,11 +435,59 @@ export default function CartPage() {
                         </Button>
                       </>
                     ) : (
-                      <div className="text-center py-4">
-                        <User className="w-8 h-8 text-gray-400 mx-auto mb-2" />
-                        <p className="text-gray-600 mb-4">Sign in to use saved addresses</p>
-                        <Button asChild>
-                          <Link href="/auth/signin?return=/cart">Sign In</Link>
+                      <div className="space-y-4">
+                        <div className="rounded-lg border bg-blue-50 p-3 text-sm text-blue-800">
+                          Guest checkout: please provide your name, email, and phone number.
+                        </div>
+
+                        <div className="space-y-2">
+                          <Label htmlFor="guest-name">Full Name</Label>
+                          <Input
+                            id="guest-name"
+                            value={guestDetails.name}
+                            onChange={(e) =>
+                              setGuestDetails((previous) => ({
+                                ...previous,
+                                name: e.target.value,
+                              }))
+                            }
+                            placeholder="John Doe"
+                          />
+                        </div>
+
+                        <div className="space-y-2">
+                          <Label htmlFor="guest-email">Email</Label>
+                          <Input
+                            id="guest-email"
+                            type="email"
+                            value={guestDetails.email}
+                            onChange={(e) =>
+                              setGuestDetails((previous) => ({
+                                ...previous,
+                                email: e.target.value,
+                              }))
+                            }
+                            placeholder="john@example.com"
+                          />
+                        </div>
+
+                        <div className="space-y-2">
+                          <Label htmlFor="guest-phone">Phone Number</Label>
+                          <Input
+                            id="guest-phone"
+                            value={guestDetails.phone}
+                            onChange={(e) =>
+                              setGuestDetails((previous) => ({
+                                ...previous,
+                                phone: e.target.value,
+                              }))
+                            }
+                            placeholder="+1 555 123 4567"
+                          />
+                        </div>
+
+                        <Button variant="outline" className="w-full" asChild>
+                          <Link href="/auth/signin?return=/cart">Sign In Instead</Link>
                         </Button>
                       </div>
                     )}
@@ -503,7 +600,14 @@ export default function CartPage() {
                   className="w-full" 
                   size="lg"
                   onClick={handleCheckout}
-                  disabled={isProcessing || !selectedAddress}
+                  disabled={
+                    isProcessing ||
+                    (user
+                      ? !selectedAddress
+                      : !guestDetails.name.trim() ||
+                        !guestDetails.email.trim() ||
+                        !guestDetails.phone.trim())
+                  }
                 >
                   {isProcessing ? (
                     'Processing...'

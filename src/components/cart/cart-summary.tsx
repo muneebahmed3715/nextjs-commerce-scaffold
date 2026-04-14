@@ -72,7 +72,7 @@ export function CartSummary({ subtotal, onCheckout, isCheckingOut }: CartSummary
       <Card>
         <CardContent className="p-4 space-y-3">
           <div className="flex items-center space-x-3">
-            <Truck className="w-5 h-5 text-primary flex-shrink-0" />
+            <Truck className="w-5 h-5 text-primary shrink-0" />
             <div>
               <p className="text-sm font-medium">Free Shipping</p>
               <p className="text-xs text-gray-500">On orders over $50</p>
@@ -80,7 +80,7 @@ export function CartSummary({ subtotal, onCheckout, isCheckingOut }: CartSummary
           </div>
           
           <div className="flex items-center space-x-3">
-            <Shield className="w-5 h-5 text-primary flex-shrink-0" />
+            <Shield className="w-5 h-5 text-primary shrink-0" />
             <div>
               <p className="text-sm font-medium">Secure Payment</p>
               <p className="text-xs text-gray-500">SSL encrypted</p>
@@ -88,7 +88,7 @@ export function CartSummary({ subtotal, onCheckout, isCheckingOut }: CartSummary
           </div>
           
           <div className="flex items-center space-x-3">
-            <RefreshCw className="w-5 h-5 text-primary flex-shrink-0" />
+            <RefreshCw className="w-5 h-5 text-primary shrink-0" />
             <div>
               <p className="text-sm font-medium">Easy Returns</p>
               <p className="text-xs text-gray-500">30-day policy</p>

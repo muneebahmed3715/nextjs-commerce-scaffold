@@ -9,6 +9,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
+import { SafeImage } from '@/components/ui/safe-image';
 import { 
   Package, 
   Search,
@@ -71,7 +72,8 @@ export default function OrdersPage() {
       const response = await fetch('/api/account/orders', {
         headers: {
           'Authorization': `Bearer ${localStorage.getItem('authToken')}`
-        }
+        },
+        cache: 'no-store',
       });
 
       if (response.ok) {
@@ -89,14 +91,14 @@ export default function OrdersPage() {
   };
 
   const getStatusColor = (status: string) => {
-    switch (status) {
-      case 'delivered':
+    switch (status?.toUpperCase()) {
+      case 'DELIVERED':
         return 'bg-green-100 text-green-800';
-      case 'shipped':
+      case 'SHIPPED':
         return 'bg-blue-100 text-blue-800';
-      case 'processing':
+      case 'PROCESSING':
         return 'bg-yellow-100 text-yellow-800';
-      case 'cancelled':
+      case 'CANCELLED':
         return 'bg-red-100 text-red-800';
       default:
         return 'bg-gray-100 text-gray-800';
@@ -104,14 +106,14 @@ export default function OrdersPage() {
   };
 
   const getStatusIcon = (status: string) => {
-    switch (status) {
-      case 'delivered':
+    switch (status?.toUpperCase()) {
+      case 'DELIVERED':
         return <CheckCircle className="w-4 h-4" />;
-      case 'shipped':
+      case 'SHIPPED':
         return <Truck className="w-4 h-4" />;
-      case 'processing':
+      case 'PROCESSING':
         return <Clock className="w-4 h-4" />;
-      case 'cancelled':
+      case 'CANCELLED':
         return <AlertCircle className="w-4 h-4" />;
       default:
         return <Package className="w-4 h-4" />;
@@ -122,7 +124,9 @@ export default function OrdersPage() {
     const matchesSearch = order.orderNumber.toLowerCase().includes(searchTerm.toLowerCase()) ||
       order.items.some(item => item.name.toLowerCase().includes(searchTerm.toLowerCase()));
     
-    const matchesStatus = statusFilter === 'all' || order.status === statusFilter;
+    const matchesStatus =
+      statusFilter === 'all' ||
+      order.status.toLowerCase() === statusFilter.toLowerCase();
     
     return matchesSearch && matchesStatus;
   });
@@ -231,10 +235,14 @@ export default function OrdersPage() {
                         <div className="space-y-3">
                           {order.items.map((item) => (
                             <div key={item.id} className="flex items-center space-x-3">
-                              <img
-                                src={item.image || '/placeholder-product.jpg'}
+                              <SafeImage
+                                src={item.image || '/placeholder-product.svg'}
                                 alt={item.name}
+                                width={48}
+                                height={48}
+                                sizes="48px"
                                 className="w-12 h-12 object-cover rounded"
+                                fallbackSrc="/placeholder-product.svg"
                               />
                               <div className="flex-1">
                                 <h5 className="font-medium">{item.name}</h5>

@@ -4,7 +4,7 @@ import { Input } from '@/components/ui/input';
 import { Minus, Plus, Trash2 } from 'lucide-react';
 import { useCartStore } from '@/stores/cart-store';
 import { toast } from 'sonner';
-import Image from 'next/image';
+import { SafeImage } from '@/components/ui/safe-image';
 
 export function CartItems() {
   const { items, updateQuantity, removeItem } = useCartStore();
@@ -30,12 +30,15 @@ export function CartItems() {
           <CardContent className="p-6">
             <div className="flex flex-col sm:flex-row gap-4">
               {/* Product Image */}
-              <div className="flex-shrink-0">
-                <div className="w-24 h-24 bg-gray-100 rounded-lg overflow-hidden">
-                  <img
+              <div className="shrink-0">
+                <div className="relative w-24 h-24 bg-gray-100 rounded-lg overflow-hidden">
+                  <SafeImage
                     src={item.image}
                     alt={item.name}
-                    className="w-full h-full object-cover"
+                    fill
+                    sizes="96px"
+                    className="object-cover"
+                    fallbackSrc="/placeholder-product.svg"
                   />
                 </div>
               </div>

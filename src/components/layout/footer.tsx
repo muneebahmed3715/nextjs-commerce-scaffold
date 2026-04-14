@@ -1,6 +1,7 @@
 import Link from 'next/link';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
+import { SafeImage } from '@/components/ui/safe-image';
 import { 
   Facebook, 
   Twitter, 
@@ -26,10 +27,13 @@ export function Footer() {
             <div className="space-y-4">
               <div className="flex items-center space-x-2">
                 <div className="relative w-8 h-8">
-                  <img
+                  <SafeImage
                     src="/logo.svg"
                     alt="ShopHub Logo"
-                    className="w-full h-full object-contain filter brightness-0 invert"
+                    fill
+                    sizes="32px"
+                    className="object-contain filter brightness-0 invert"
+                    fallbackSrc="/logo.svg"
                   />
                 </div>
                 <span className="font-bold text-xl text-white">ShopHub</span>
@@ -137,7 +141,7 @@ export function Footer() {
               <h3 className="text-white font-semibold mb-4">Contact Info</h3>
               <div className="space-y-3">
                 <div className="flex items-start space-x-3">
-                  <MapPin className="w-5 h-5 mt-0.5 text-gray-400 flex-shrink-0" />
+                  <MapPin className="w-5 h-5 mt-0.5 text-gray-400 shrink-0" />
                   <span className="text-gray-400">
                     123 Commerce Street<br />
                     New York, NY 10001<br />
@@ -146,12 +150,12 @@ export function Footer() {
                 </div>
                 
                 <div className="flex items-center space-x-3">
-                  <Phone className="w-5 h-5 text-gray-400 flex-shrink-0" />
+                  <Phone className="w-5 h-5 text-gray-400 shrink-0" />
                   <span className="text-gray-400">+1 (555) 123-4567</span>
                 </div>
                 
                 <div className="flex items-center space-x-3">
-                  <Mail className="w-5 h-5 text-gray-400 flex-shrink-0" />
+                  <Mail className="w-5 h-5 text-gray-400 shrink-0" />
                   <span className="text-gray-400">support@shophub.com</span>
                 </div>
               </div>

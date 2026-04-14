@@ -1,12 +1,13 @@
 'use client';
 
 import Link from 'next/link';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { ShoppingCart, Search, Menu, User, ChevronDown } from 'lucide-react';
+import { ShoppingCart, Search, Menu, User, ChevronDown, LogOut } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
+import { SafeImage } from '@/components/ui/safe-image';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -15,10 +16,73 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { useCartStore } from '@/stores/cart-store';
 
+interface StoredUser {
+  name?: string | null;
+  email?: string | null;
+  role?: string | null;
+}
+
 export function Header() {
   const [searchQuery, setSearchQuery] = useState('');
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [isAdmin, setIsAdmin] = useState(false);
+  const [userInitial, setUserInitial] = useState('');
   const router = useRouter();
-  const cartItemsCount = useCartStore((state) => state.items.length);
+  const cartItemsCount = useCartStore((state) => state.getTotalItems());
+  const hydrateFromServer = useCartStore((state) => state.hydrateFromServer);
+
+  useEffect(() => {
+    void hydrateFromServer();
+  }, [hydrateFromServer]);
+
+  useEffect(() => {
+    const getInitial = (user: StoredUser | null) => {
+      const rawValue = user?.name?.trim() || user?.email?.trim() || '';
+      return rawValue ? rawValue.charAt(0).toUpperCase() : '';
+    };
+
+    const refreshAuthState = () => {
+      const token = localStorage.getItem('authToken');
+      const userData = localStorage.getItem('userData');
+
+      if (!token || !userData) {
+        setIsAuthenticated(false);
+        setIsAdmin(false);
+        setUserInitial('');
+        return;
+      }
+
+      try {
+        const parsedUser = JSON.parse(userData) as StoredUser;
+        setIsAuthenticated(true);
+        setIsAdmin(parsedUser.role === 'ADMIN');
+        setUserInitial(getInitial(parsedUser));
+      } catch {
+        setIsAuthenticated(true);
+        setIsAdmin(false);
+        setUserInitial('A');
+      }
+    };
+
+    refreshAuthState();
+    window.addEventListener('storage', refreshAuthState);
+    window.addEventListener('auth-state-changed', refreshAuthState);
+
+    return () => {
+      window.removeEventListener('storage', refreshAuthState);
+      window.removeEventListener('auth-state-changed', refreshAuthState);
+    };
+  }, []);
+
+  const handleSignOut = () => {
+    localStorage.removeItem('authToken');
+    localStorage.removeItem('userData');
+    window.dispatchEvent(new Event('auth-state-changed'));
+    setIsAuthenticated(false);
+    setIsAdmin(false);
+    setUserInitial('');
+    router.push('/');
+  };
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
@@ -28,16 +92,19 @@ export function Header() {
   };
 
   return (
-    <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+    <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-backdrop-filter:bg-background/60">
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex h-16 items-center justify-between">
           {/* Logo */}
           <Link href="/" className="flex items-center space-x-2">
             <div className="relative w-8 h-8">
-              <img
+              <SafeImage
                 src="/logo.svg"
                 alt="ECommerce Logo"
-                className="w-full h-full object-contain"
+                fill
+                sizes="32px"
+                className="object-contain"
+                fallbackSrc="/logo.svg"
               />
             </div>
             <span className="font-bold text-xl hidden sm:inline-block">
@@ -100,23 +167,43 @@ export function Header() {
             {/* User Account */}
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <Button variant="ghost" size="icon">
-                  <User className="h-5 w-5" />
+                <Button variant="ghost" size="icon" className="rounded-full">
+                  {isAuthenticated ? (
+                    <span className="flex h-8 w-8 items-center justify-center rounded-full border border-border bg-primary text-sm font-semibold text-primary-foreground">
+                      {userInitial || 'A'}
+                    </span>
+                  ) : (
+                    <User className="h-5 w-5" />
+                  )}
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end">
-                <DropdownMenuItem asChild>
-                  <Link href="/account">My Account</Link>
-                </DropdownMenuItem>
-                <DropdownMenuItem asChild>
-                  <Link href="/orders">Orders</Link>
-                </DropdownMenuItem>
-                <DropdownMenuItem asChild>
-                  <Link href="/wishlist">Wishlist</Link>
-                </DropdownMenuItem>
-                <DropdownMenuItem asChild>
-                  <Link href="/auth/signin">Sign In</Link>
-                </DropdownMenuItem>
+                {isAuthenticated ? (
+                  <>
+                    <DropdownMenuItem asChild>
+                      <Link href="/account">My Account</Link>
+                    </DropdownMenuItem>
+                    <DropdownMenuItem asChild>
+                      <Link href="/account/orders">Orders</Link>
+                    </DropdownMenuItem>
+                    <DropdownMenuItem asChild>
+                      <Link href="/wishlist">Wishlist</Link>
+                    </DropdownMenuItem>
+                    {isAdmin && (
+                      <DropdownMenuItem asChild>
+                        <Link href="/admin">Admin Panel</Link>
+                      </DropdownMenuItem>
+                    )}
+                    <DropdownMenuItem onClick={handleSignOut}>
+                      <LogOut className="mr-2 h-4 w-4" />
+                      Sign Out
+                    </DropdownMenuItem>
+                  </>
+                ) : (
+                  <DropdownMenuItem asChild>
+                    <Link href="/auth/signin">Sign In</Link>
+                  </DropdownMenuItem>
+                )}
               </DropdownMenuContent>
             </DropdownMenu>
 

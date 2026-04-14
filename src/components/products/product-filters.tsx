@@ -6,6 +6,7 @@ import { Badge } from '@/components/ui/badge';
 import { Slider } from '@/components/ui/slider';
 import { Checkbox } from '@/components/ui/checkbox';
 import { X } from 'lucide-react';
+import { VALID_CATEGORY_SLUGS } from '@/lib/product-categories';
 
 interface ProductFiltersProps {
   filters: {
@@ -13,17 +14,24 @@ interface ProductFiltersProps {
     priceRange: [number, number];
     inStock: boolean;
   };
+  categoryCounts: Record<string, number>;
   onFiltersChange: (filters: any) => void;
 }
 
-const categories = [
-  { id: 'electronics', name: 'Electronics', count: 24 },
-  { id: 'clothing', name: 'Clothing', count: 18 },
-  { id: 'home-garden', name: 'Home & Garden', count: 12 },
-  { id: 'sports-outdoors', name: 'Sports & Outdoors', count: 8 },
-];
+const CATEGORY_LABELS: Record<string, string> = {
+  electronics: 'Electronics',
+  clothing: 'Clothing',
+  'home-garden': 'Home & Garden',
+  'sports-outdoors': 'Sports & Outdoors',
+};
 
-export function ProductFilters({ filters, onFiltersChange }: ProductFiltersProps) {
+export function ProductFilters({ filters, categoryCounts, onFiltersChange }: ProductFiltersProps) {
+  const categories = VALID_CATEGORY_SLUGS.map((slug) => ({
+    id: slug,
+    name: CATEGORY_LABELS[slug] ?? slug,
+    count: categoryCounts[slug] ?? 0,
+  }));
+
   const handleCategoryChange = (categoryId: string, checked: boolean) => {
     onFiltersChange({
       ...filters,

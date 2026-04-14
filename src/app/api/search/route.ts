@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { db } from '@/lib/db';
+import { parseImageList } from '@/lib/images';
 
 export async function GET(request: NextRequest) {
   try {
@@ -28,19 +29,16 @@ export async function GET(request: NextRequest) {
             {
               name: {
                 contains: query,
-                mode: 'insensitive',
               },
             },
             {
               description: {
                 contains: query,
-                mode: 'insensitive',
               },
             },
             {
               sku: {
                 contains: query,
-                mode: 'insensitive',
               },
             },
           ],
@@ -61,19 +59,16 @@ export async function GET(request: NextRequest) {
             {
               name: {
                 contains: query,
-                mode: 'insensitive',
               },
             },
             {
               description: {
                 contains: query,
-                mode: 'insensitive',
               },
             },
             {
               sku: {
                 contains: query,
-                mode: 'insensitive',
               },
             },
           ],
@@ -90,7 +85,7 @@ export async function GET(request: NextRequest) {
 
     const formattedProducts = products.map(product => ({
       ...product,
-      images: product.images ? JSON.parse(product.images) : [],
+      images: parseImageList(product.images),
     }));
 
     return NextResponse.json({

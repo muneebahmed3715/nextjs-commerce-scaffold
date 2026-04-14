@@ -111,6 +111,7 @@ export default function SignUpPage() {
       const data = await response.json();
 
       if (response.ok) {
+        window.alert('Your account has been created successfully.');
         toast.success('Account created successfully! Please sign in.');
         router.push('/auth/signin');
       } else {
