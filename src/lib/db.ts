@@ -32,17 +32,27 @@ function createPrismaClient() {
 }
 
 async function initializeSqlite(client: PrismaClient) {
-  try {
-    await client.$executeRawUnsafe('PRAGMA foreign_keys = ON;')
-    await client.$queryRawUnsafe('PRAGMA journal_mode = WAL;')
-    await client.$executeRawUnsafe('PRAGMA busy_timeout = 5000;')
-  } catch (error) {
-    console.error('[db] Failed to initialize SQLite pragmas:', error)
+  // Only run PRAGMA commands if we are using SQLite (local dev)
+  const isSqlite = process.env.DATABASE_URL?.includes('file:') || !process.env.DATABASE_URL;
+  
+  if (isSqlite) {
+    try {
+      await client.$executeRawUnsafe('PRAGMA foreign_keys = ON;')
+      await client.$queryRawUnsafe('PRAGMA journal_mode = WAL;')
+      await client.$executeRawUnsafe('PRAGMA busy_timeout = 5000;')
+    } catch (error) {
+      console.error('[db] Failed to initialize SQLite pragmas:', error)
+    }
   }
 }
 
 export const db = globalForPrisma.prisma ?? createPrismaClient()
-export const dbReady = globalForPrisma.prismaInit ?? initializeSqlite(db)
+
+// Logic to skip initialization on Vercel/Production
+export const dbReady = globalForPrisma.prismaInit ?? 
+  (process.env.NODE_ENV === 'production' 
+    ? Promise.resolve() 
+    : initializeSqlite(db))
 
 if (process.env.NODE_ENV !== 'production') {
   globalForPrisma.prisma = db
