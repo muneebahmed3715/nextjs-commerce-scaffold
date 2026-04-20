@@ -19,7 +19,7 @@ export async function GET(request: NextRequest) {
       );
     }
 
-    const where: Prisma.ProductWhereInput = {
+    const where: any = {
       isActive: true,
       ...(featured === 'true' ? { isFeatured: true } : {}),
       ...(parsedCategory
