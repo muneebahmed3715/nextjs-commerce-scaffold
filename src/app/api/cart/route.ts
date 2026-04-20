@@ -87,7 +87,7 @@ export async function PUT(request: NextRequest) {
 
     const productById = new Map(products.map((product) => [product.id, product]));
     const validItems = incomingItems.filter((item) => {
-      const product = productById.get(item.id);
+     const product = productById.get(item.id) as any;
       return Boolean(product) && item.quantity <= (product?.stock ?? 0);
     });
 
