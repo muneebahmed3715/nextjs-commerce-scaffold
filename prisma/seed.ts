@@ -3,6 +3,12 @@ import { PrismaClient } from '@prisma/client';
 const prisma = new PrismaClient();
 
 async function main() {
+  const existingProducts = await prisma.product.count();
+  if (existingProducts > 0) {
+    console.log('Seed skipped: products already exist.');
+    return;
+  }
+
   // Create categories
   const electronics = await prisma.category.create({
     data: {
