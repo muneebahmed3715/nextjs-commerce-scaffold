@@ -5,6 +5,7 @@
   "scripts": {
     "predev": "prisma db push",
     "dev": "next dev -p 3000",
+    "vercel-build": "prisma migrate deploy && npx tsx prisma/seed.ts && next build",
     "build": "prisma migrate deploy && npx tsx prisma/seed.ts && next build && cp -r .next/static .next/standalone/.next/ && cp -r public .next/standalone/",
     "start": "NODE_ENV=production node .next/standalone/server.js 2>&1 | tee server.log",
     "lint": "next lint",
