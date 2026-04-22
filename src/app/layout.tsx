@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
+import Script from "next/script";
 import "./globals.css";
 import { Toaster } from "@/components/ui/toaster";
 
@@ -42,9 +43,31 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" suppressHydrationWarning>
-      <body
+      <body suppressHydrationWarning
         className={`${geistSans.variable} ${geistMono.variable} antialiased bg-background text-foreground`}
       >
+        <Script id="remove-extension-attrs" strategy="beforeInteractive">
+          {`(() => {
+            const prefixMatchers = ['bis_', '__processed_'];
+            const shouldRemove = (name) => prefixMatchers.some((prefix) => name.startsWith(prefix));
+
+            const cleanup = () => {
+              document.querySelectorAll('*').forEach((element) => {
+                Array.from(element.attributes).forEach((attribute) => {
+                  if (shouldRemove(attribute.name)) {
+                    element.removeAttribute(attribute.name);
+                  }
+                });
+              });
+            };
+
+            if (document.readyState === 'loading') {
+              document.addEventListener('DOMContentLoaded', cleanup, { once: true });
+            } else {
+              cleanup();
+            }
+          })();`}
+        </Script>
         {children}
         <Toaster />
       </body>

@@ -1,6 +1,6 @@
 # Next.js Commerce Scaffold
 
-Modern Next.js 15 + TypeScript storefront scaffold with Prisma, Tailwind CSS 4, shadcn/ui, and sample ecommerce flows (products, cart, account, checkout-adjacent pages).
+Modern Next.js 15 + TypeScript storefront scaffold with Prisma, PostgreSQL, Tailwind CSS 4, shadcn/ui, and sample ecommerce flows (products, cart, account, checkout-adjacent pages).
 
 ## Stack
 - Next.js 15 (App Router), React 19
@@ -20,7 +20,10 @@ cd "e:\VSCode\Internship 1"
 # install dependencies
 npm install
 
-# sync schema to persistent SQLite DB and generate Prisma client
+# start local PostgreSQL
+docker compose up -d postgres
+
+# sync schema to PostgreSQL and generate Prisma client
 npm run db:push
 
 # optional: seed demo data
@@ -32,26 +35,29 @@ npm run dev
 Open http://localhost:3000.
 
 ## Environment
-Create `.env` in the project root:
+Create `.env` in the project root or copy `.env.example`:
 ```env
-DATABASE_URL="file:../database/app_database.db"
+DATABASE_URL="postgresql://postgres:postgres@localhost:5432/shophub?schema=public"
+DIRECT_URL="postgresql://postgres:postgres@localhost:5432/shophub?schema=public"
 JWT_SECRET="change-this-to-a-strong-secret"
 ```
 Notes:
 - `JWT_SECRET` is required in production.
-- SQLite file is persisted at `database/app_database.db` (not in-memory).
+- `DATABASE_URL` is used by Prisma in both local development and Vercel.
+- `DIRECT_URL` is used by Prisma migrations and db push.
+- For Vercel deployment, set both values to your Vercel Postgres connection strings.
+- For local development, keep the Postgres container running with `docker compose up -d postgres`.
 - If product seed image files are not present, the UI automatically falls back to `/placeholder-product.svg`.
 
 ## Project structure
 - src/app  routes and API handlers under src/app/api
 - src/components  shared UI components; src/components/ui holds shadcn/ui
 - src/lib/db.ts  Prisma client
-- database/connection.js  central database path/config helper
 - database/migrations/  migration placeholder directory
 - database/seed.js  seed runner script
-- database/app_database.db  persistent SQLite database file
 - prisma/schema.prisma  database schema
 - prisma/seed.ts  demo seed data
+- docker-compose.yml  local PostgreSQL container
 
 ## Common scripts
 - npm run dev  start dev server (auto-runs `prisma db push` first)
@@ -86,3 +92,4 @@ Notes:
 ## Troubleshooting
 - Port 3000 busy: stop the other process or run npx next dev -p 4000.
 - Missing DB: rerun npx prisma db push and (optionally) npx tsx prisma/seed.ts.
+- Local Postgres not running: start it with docker compose up -d postgres.

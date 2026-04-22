@@ -1,9 +1,6 @@
 const { spawnSync } = require('child_process');
-const { ensureDatabaseDirectory } = require('./connection');
 
 function run() {
-  ensureDatabaseDirectory();
-
   const result = spawnSync(
     process.platform === 'win32' ? 'npx.cmd' : 'npx',
     ['tsx', 'prisma/seed.ts'],

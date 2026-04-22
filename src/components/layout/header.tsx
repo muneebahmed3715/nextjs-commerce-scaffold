@@ -27,9 +27,14 @@ export function Header() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [isAdmin, setIsAdmin] = useState(false);
   const [userInitial, setUserInitial] = useState('');
+  const [isMounted, setIsMounted] = useState(false);
   const router = useRouter();
   const cartItemsCount = useCartStore((state) => state.getTotalItems());
   const hydrateFromServer = useCartStore((state) => state.hydrateFromServer);
+
+  useEffect(() => {
+    setIsMounted(true);
+  }, []);
 
   useEffect(() => {
     void hydrateFromServer();
@@ -211,7 +216,7 @@ export function Header() {
             <Link href="/cart" className="relative">
               <Button variant="ghost" size="icon">
                 <ShoppingCart className="h-5 w-5" />
-                {cartItemsCount > 0 && (
+                {isMounted && cartItemsCount > 0 && (
                   <Badge 
                     variant="destructive" 
                     className="absolute -top-2 -right-2 h-5 w-5 rounded-full p-0 text-xs flex items-center justify-center"

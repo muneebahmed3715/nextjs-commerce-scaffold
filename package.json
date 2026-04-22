@@ -8,6 +8,8 @@
     "build": "next build && cp -r .next/static .next/standalone/.next/ && cp -r public .next/standalone/",
     "start": "NODE_ENV=production node .next/standalone/server.js 2>&1 | tee server.log",
     "lint": "next lint",
+    "db:up": "docker compose up -d postgres",
+    "db:down": "docker compose down",
     "db:push": "prisma db push --skip-generate",
     "db:generate": "prisma generate",
     "db:migrate": "prisma migrate dev",

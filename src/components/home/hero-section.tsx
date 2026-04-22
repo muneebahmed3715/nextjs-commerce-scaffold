@@ -1,7 +1,7 @@
 import Link from 'next/link';
-import Image from 'next/image';
 import { Button } from '@/components/ui/button';
 import { ArrowRight, MessageSquare } from 'lucide-react';
+import { SafeImage } from '@/components/ui/safe-image';
 
 export function HeroSection() {
   return (
@@ -66,12 +66,13 @@ export function HeroSection() {
                 ].map((item) => (
                   <div key={item.label} className="bg-white/20 rounded-lg overflow-hidden">
                     <div className="relative aspect-square">
-                      <Image
+                      <SafeImage
                         src={item.src}
                         alt={item.label}
                         fill
                         className="object-cover"
                         sizes="150px"
+                        fallbackSrc="/placeholder-product.svg"
                       />
                     </div>
                     <p className="text-xs text-white/80 text-center py-1 font-medium">{item.label}</p>

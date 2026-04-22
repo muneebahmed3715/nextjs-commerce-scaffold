@@ -1,5 +1,21 @@
 export const FALLBACK_PRODUCT_IMAGE = '/placeholder-product.svg';
 
+export function normalizeImageSrc(src?: string | null) {
+  if (!src) {
+    return FALLBACK_PRODUCT_IMAGE;
+  }
+
+  if (src.startsWith('//')) {
+    return `https:${src}`;
+  }
+
+  if (src.startsWith('http://')) {
+    return `https://${src.slice('http://'.length)}`;
+  }
+
+  return src;
+}
+
 export function parseImageList(value?: string | null) {
   if (!value) {
     return [] as string[];
@@ -17,5 +33,5 @@ export function parseImageList(value?: string | null) {
 }
 
 export function withFallbackImage(image?: string | null) {
-  return image || FALLBACK_PRODUCT_IMAGE;
+  return normalizeImageSrc(image);
 }
