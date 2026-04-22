@@ -47,7 +47,7 @@ Notes:
 - `DIRECT_URL` is used by Prisma migrations and db push.
 - For Vercel deployment, set both values to your Vercel Postgres connection strings.
 - For local development, keep the Postgres container running with `docker compose up -d postgres`.
-- If product seed image files are not present, the UI automatically falls back to `/placeholder-product.svg`.
+- If product seed image files are not present, the UI automatically falls back to `/placeholder-product.svg`..
 
 ## Project structure
 - src/app  routes and API handlers under src/app/api
