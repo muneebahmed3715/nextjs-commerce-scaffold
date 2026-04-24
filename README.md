@@ -15,9 +15,6 @@ ShopHub is a production-style ecommerce project designed to deliver a smooth sho
 - Online shoppers (product browsing, cart, checkout-adjacent flows)
 - Store operators/admins (catalog, orders, supplier coordination)
 
-**Live demo:** [Add demo link](#)  
-**GitHub repository:** [Add repository link](#)
-
 ## 3. Features
 
 - Product catalog with category filtering and slug-based product pages
