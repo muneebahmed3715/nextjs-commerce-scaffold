@@ -109,9 +109,9 @@ Prisma Studio (database UI): `npm run db:studio`
 
 Add screenshots or a short walkthrough GIF to highlight key flows.
 
-![Home Page Placeholder](./Screenshot 2026-04-19 184630.png)
-![Product Page Placeholder](./Screenshot 2026-04-19 184903.png)
-![Cart Page Placeholder](./Screenshot 2026-04-19 210602.png)
+![Home Page Placeholder](./Screenshot%202026-04-19%20184630.png)
+![Product Page Placeholder](./Screenshot%202026-04-19%20184903.png)
+![Cart Page Placeholder](./Screenshot%202026-04-19%20210602.png)
 
 ## 8. Project Structure
 
