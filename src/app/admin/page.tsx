@@ -172,8 +172,8 @@ export default function AdminPage() {
           return;
         }
 
-        const authToken = localStorage.getItem('authToken') || '';
-        const userDataRaw = localStorage.getItem('userData') || '';
+        const authToken = sessionStorage.getItem('authToken') || '';
+        const userDataRaw = sessionStorage.getItem('userData') || '';
 
         if (!authToken || !userDataRaw) {
           router.push('/auth/signin?return=/admin');

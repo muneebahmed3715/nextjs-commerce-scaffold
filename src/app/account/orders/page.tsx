@@ -57,7 +57,7 @@ export default function OrdersPage() {
 
   useEffect(() => {
     // Check if user is logged in
-    const token = localStorage.getItem('authToken');
+    const token = sessionStorage.getItem('authToken');
     if (!token) {
       router.push('/auth/signin?return=/account/orders');
       return;
@@ -71,7 +71,7 @@ export default function OrdersPage() {
     try {
       const response = await fetch('/api/account/orders', {
         headers: {
-          'Authorization': `Bearer ${localStorage.getItem('authToken')}`
+          'Authorization': `Bearer ${sessionStorage.getItem('authToken')}`
         },
         cache: 'no-store',
       });

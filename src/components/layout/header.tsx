@@ -47,8 +47,8 @@ export function Header() {
     };
 
     const refreshAuthState = () => {
-      const token = localStorage.getItem('authToken');
-      const userData = localStorage.getItem('userData');
+      const token = sessionStorage.getItem('authToken');
+      const userData = sessionStorage.getItem('userData');
 
       if (!token || !userData) {
         setIsAuthenticated(false);
@@ -80,8 +80,8 @@ export function Header() {
   }, []);
 
   const handleSignOut = () => {
-    localStorage.removeItem('authToken');
-    localStorage.removeItem('userData');
+    sessionStorage.removeItem('authToken');
+    sessionStorage.removeItem('userData');
     window.dispatchEvent(new Event('auth-state-changed'));
     setIsAuthenticated(false);
     setIsAdmin(false);

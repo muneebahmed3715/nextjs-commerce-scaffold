@@ -88,8 +88,8 @@ export default function AccountPage() {
 
   useEffect(() => {
     // Check if user is logged in
-    const token = localStorage.getItem('authToken');
-    const userData = localStorage.getItem('userData');
+    const token = sessionStorage.getItem('authToken');
+    const userData = sessionStorage.getItem('userData');
     
     if (!token || !userData) {
       router.push('/auth/signin?return=/account');
@@ -172,8 +172,8 @@ export default function AccountPage() {
   };
 
   const handleLogout = () => {
-    localStorage.removeItem('authToken');
-    localStorage.removeItem('userData');
+    sessionStorage.removeItem('authToken');
+    sessionStorage.removeItem('userData');
     toast.success('Logged out successfully');
     router.push('/');
   };
@@ -196,7 +196,7 @@ export default function AccountPage() {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${localStorage.getItem('authToken')}`
+          'Authorization': `Bearer ${sessionStorage.getItem('authToken')}`
         },
         body: JSON.stringify({
           currentPassword: passwordData.currentPassword,

@@ -76,8 +76,8 @@ export default function CartPage() {
 
   useEffect(() => {
     // Check if user is logged in
-    const token = localStorage.getItem('authToken');
-    const userData = localStorage.getItem('userData');
+    const token = sessionStorage.getItem('authToken');
+    const userData = sessionStorage.getItem('userData');
     
     if (userData) {
       setUser(JSON.parse(userData));
@@ -95,7 +95,7 @@ export default function CartPage() {
     try {
       const response = await fetch('/api/account/addresses', {
         headers: {
-          'Authorization': `Bearer ${localStorage.getItem('authToken')}`
+          'Authorization': `Bearer ${sessionStorage.getItem('authToken')}`
         }
       });
       
@@ -207,7 +207,7 @@ export default function CartPage() {
           : undefined,
       };
 
-      const authToken = localStorage.getItem('authToken');
+      const authToken = sessionStorage.getItem('authToken');
       const response = await fetch('/api/orders', {
         method: 'POST',
         headers: {

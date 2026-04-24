@@ -91,14 +91,14 @@ export default function SignInPage() {
       if (response.ok) {
         toast.success('Sign in successful!');
         
-        // Store token in localStorage
+        // Store token in sessionStorage
         if (data.token) {
-          localStorage.setItem('authToken', data.token);
+          sessionStorage.setItem('authToken', data.token);
         }
         
         // Store user data
         if (data.user) {
-          localStorage.setItem('userData', JSON.stringify(data.user));
+          sessionStorage.setItem('userData', JSON.stringify(data.user));
         }
 
         window.dispatchEvent(new Event('auth-state-changed'));

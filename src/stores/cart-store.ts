@@ -1,5 +1,5 @@
 import { create } from 'zustand';
-import { persist } from 'zustand/middleware';
+import { createJSONStorage, persist } from 'zustand/middleware';
 
 export interface CartItem {
   id: string;
@@ -32,7 +32,7 @@ export const useCartStore = create<CartStore>()(
           return;
         }
 
-        const token = localStorage.getItem('authToken');
+        const token = sessionStorage.getItem('authToken');
         if (!token) {
           return;
         }
@@ -91,7 +91,7 @@ export const useCartStore = create<CartStore>()(
           }
 
           if (typeof window !== 'undefined') {
-            const userDataRaw = localStorage.getItem('userData');
+            const userDataRaw = sessionStorage.getItem('userData');
             let customerName = '';
             if (userDataRaw) {
               try {
@@ -104,7 +104,7 @@ export const useCartStore = create<CartStore>()(
 
             window.alert('Item added to your cart successfully.');
 
-            const token = localStorage.getItem('authToken');
+            const token = sessionStorage.getItem('authToken');
 
             void fetch('/api/supplier-notifications/cart-add', {
               method: 'POST',
@@ -144,7 +144,7 @@ export const useCartStore = create<CartStore>()(
           const nextItems = state.items.filter((item) => item.id !== id);
 
           if (typeof window !== 'undefined') {
-            const token = localStorage.getItem('authToken');
+            const token = sessionStorage.getItem('authToken');
             if (token) {
               void fetch('/api/cart', {
                 method: 'PUT',
@@ -177,7 +177,7 @@ export const useCartStore = create<CartStore>()(
           );
 
           if (typeof window !== 'undefined') {
-            const token = localStorage.getItem('authToken');
+            const token = sessionStorage.getItem('authToken');
             if (token) {
               void fetch('/api/cart', {
                 method: 'PUT',
@@ -201,7 +201,7 @@ export const useCartStore = create<CartStore>()(
       clearCart: () => {
         set(() => {
           if (typeof window !== 'undefined') {
-            const token = localStorage.getItem('authToken');
+            const token = sessionStorage.getItem('authToken');
             if (token) {
               void fetch('/api/cart', {
                 method: 'DELETE',
@@ -226,6 +226,7 @@ export const useCartStore = create<CartStore>()(
     }),
     {
       name: 'cart-storage',
+      storage: createJSONStorage(() => sessionStorage),
     }
   )
 );
