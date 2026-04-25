@@ -51,21 +51,51 @@ export default function RootLayout({
             const prefixMatchers = ['bis_', '__processed_'];
             const shouldRemove = (name) => prefixMatchers.some((prefix) => name.startsWith(prefix));
 
-            const cleanup = () => {
-              document.querySelectorAll('*').forEach((element) => {
-                Array.from(element.attributes).forEach((attribute) => {
-                  if (shouldRemove(attribute.name)) {
-                    element.removeAttribute(attribute.name);
-                  }
-                });
+            const cleanupElement = (element) => {
+              if (!(element instanceof Element)) {
+                return;
+              }
+
+              Array.from(element.attributes).forEach((attribute) => {
+                if (shouldRemove(attribute.name)) {
+                  element.removeAttribute(attribute.name);
+                }
               });
             };
 
-            if (document.readyState === 'loading') {
-              document.addEventListener('DOMContentLoaded', cleanup, { once: true });
-            } else {
-              cleanup();
-            }
+            const cleanup = () => {
+              cleanupElement(document.documentElement);
+              document.querySelectorAll('*').forEach((element) => {
+                cleanupElement(element);
+              });
+            };
+
+            // Run immediately to avoid hydration mismatches from injected attributes.
+            cleanup();
+
+            // Keep stripping extension-added attributes that may appear before/around hydration.
+            const observer = new MutationObserver((mutations) => {
+              mutations.forEach((mutation) => {
+                if (mutation.type === 'attributes' && mutation.attributeName) {
+                  if (shouldRemove(mutation.attributeName)) {
+                    cleanupElement(mutation.target);
+                  }
+                }
+
+                mutation.addedNodes.forEach((node) => {
+                  if (node instanceof Element) {
+                    cleanupElement(node);
+                    node.querySelectorAll('*').forEach((child) => cleanupElement(child));
+                  }
+                });
+              });
+            });
+
+            observer.observe(document.documentElement, {
+              subtree: true,
+              childList: true,
+              attributes: true,
+            });
           })();`}
         </Script>
         {children}

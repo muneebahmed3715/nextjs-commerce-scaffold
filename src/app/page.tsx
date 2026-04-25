@@ -5,8 +5,8 @@ import { CategoriesSection } from '@/components/home/categories-section';
 import { FeaturedProducts } from '@/components/home/featured-products';
 import { RecommendedProducts } from '@/components/home/recommended-products';
 import { NewsletterSection } from '@/components/home/newsletter-section';
+import { AboutSection } from '@/components/home/about-section';
 import { Footer } from '@/components/layout/footer';
-import { Toaster } from '@/components/ui/toaster';
 
 export default function Home() {
   return (
@@ -17,10 +17,10 @@ export default function Home() {
         <CategoriesSection />
         <FeaturedProducts />
         <RecommendedProducts />
+        <AboutSection />
         <NewsletterSection />
       </main>
       <Footer />
-      <Toaster />
     </div>
   );
 }

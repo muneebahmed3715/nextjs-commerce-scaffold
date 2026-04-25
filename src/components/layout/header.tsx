@@ -3,7 +3,7 @@
 import Link from 'next/link';
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { ShoppingCart, Search, Menu, User, ChevronDown, LogOut } from 'lucide-react';
+import { ShoppingCart, Search, Menu, User, ChevronDown, LogOut, X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
@@ -24,6 +24,7 @@ interface StoredUser {
 
 export function Header() {
   const [searchQuery, setSearchQuery] = useState('');
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [isAdmin, setIsAdmin] = useState(false);
   const [userInitial, setUserInitial] = useState('');
@@ -86,6 +87,7 @@ export function Header() {
     setIsAuthenticated(false);
     setIsAdmin(false);
     setUserInitial('');
+    setIsMobileMenuOpen(false);
     router.push('/');
   };
 
@@ -93,15 +95,18 @@ export function Header() {
     e.preventDefault();
     if (searchQuery.trim()) {
       router.push(`/search?q=${encodeURIComponent(searchQuery.trim())}`);
+      setIsMobileMenuOpen(false);
     }
   };
+
+  const closeMobileMenu = () => setIsMobileMenuOpen(false);
 
   return (
     <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-backdrop-filter:bg-background/60">
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex h-16 items-center justify-between">
+        <div className="flex h-16 items-center justify-between gap-3">
           {/* Logo */}
-          <Link href="/" className="flex items-center space-x-2">
+          <Link href="/" className="flex items-center space-x-2" onClick={closeMobileMenu}>
             <div className="relative w-8 h-8">
               <SafeImage
                 src="/logo.svg"
@@ -117,8 +122,8 @@ export function Header() {
             </span>
           </Link>
 
-          {/* Search Bar - Hidden on mobile */}
-          <div className="hidden md:flex flex-1 max-w-lg mx-8">
+          {/* Search Bar for tablet/desktop */}
+          <div className="hidden md:flex flex-1 max-w-2xl mx-4 lg:mx-8">
             <form onSubmit={handleSearch} className="relative w-full">
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
               <Input
@@ -130,7 +135,7 @@ export function Header() {
             </form>
           </div>
 
-          {/* Navigation */}
+          {/* Desktop Navigation */}
           <nav className="hidden lg:flex items-center space-x-6">
             <DropdownMenu>
               <DropdownMenuTrigger className="flex items-center space-x-1 text-sm font-medium hover:text-primary">
@@ -153,19 +158,25 @@ export function Header() {
               </DropdownMenuContent>
             </DropdownMenu>
             
-            <Link href="/deals" className="text-sm font-medium hover:text-primary">
-              Deals
+            <Link href="/#products" className="text-sm font-medium hover:text-primary">
+              Products
             </Link>
             
-            <Link href="/suppliers" className="text-sm font-medium hover:text-primary">
-              Suppliers
+            <Link href="/#about" className="text-sm font-medium hover:text-primary">
+              About
             </Link>
           </nav>
 
           {/* Actions */}
           <div className="flex items-center space-x-4">
             {/* Mobile Search */}
-            <Button variant="ghost" size="icon" className="md:hidden">
+            <Button
+              variant="ghost"
+              size="icon"
+              className="md:hidden"
+              onClick={() => setIsMobileMenuOpen(true)}
+              aria-label="Open search menu"
+            >
               <Search className="h-5 w-5" />
             </Button>
 
@@ -186,17 +197,17 @@ export function Header() {
                 {isAuthenticated ? (
                   <>
                     <DropdownMenuItem asChild>
-                      <Link href="/account">My Account</Link>
+                      <Link href="/account" onClick={closeMobileMenu}>My Account</Link>
                     </DropdownMenuItem>
                     <DropdownMenuItem asChild>
-                      <Link href="/account/orders">Orders</Link>
+                      <Link href="/account/orders" onClick={closeMobileMenu}>Orders</Link>
                     </DropdownMenuItem>
                     <DropdownMenuItem asChild>
-                      <Link href="/wishlist">Wishlist</Link>
+                      <Link href="/wishlist" onClick={closeMobileMenu}>Wishlist</Link>
                     </DropdownMenuItem>
                     {isAdmin && (
                       <DropdownMenuItem asChild>
-                        <Link href="/admin">Admin Panel</Link>
+                        <Link href="/admin" onClick={closeMobileMenu}>Admin Panel</Link>
                       </DropdownMenuItem>
                     )}
                     <DropdownMenuItem onClick={handleSignOut}>
@@ -206,7 +217,7 @@ export function Header() {
                   </>
                 ) : (
                   <DropdownMenuItem asChild>
-                    <Link href="/auth/signin">Sign In</Link>
+                    <Link href="/auth/signin" onClick={closeMobileMenu}>Sign In</Link>
                   </DropdownMenuItem>
                 )}
               </DropdownMenuContent>
@@ -228,11 +239,65 @@ export function Header() {
             </Link>
 
             {/* Mobile Menu */}
-            <Button variant="ghost" size="icon" className="lg:hidden">
-              <Menu className="h-5 w-5" />
+            <Button
+              variant="ghost"
+              size="icon"
+              className="lg:hidden"
+              onClick={() => setIsMobileMenuOpen((open) => !open)}
+              aria-label={isMobileMenuOpen ? 'Close mobile menu' : 'Open mobile menu'}
+              aria-expanded={isMobileMenuOpen}
+              aria-controls="mobile-navigation"
+            >
+              {isMobileMenuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
             </Button>
           </div>
         </div>
+
+        {/* Mobile-first menu: visible from 320px and hidden at desktop breakpoint */}
+        {isMobileMenuOpen && (
+          <div id="mobile-navigation" className="border-t py-4 lg:hidden">
+            <form onSubmit={handleSearch} className="relative mb-4">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground h-4 w-4" />
+              <Input
+                placeholder="Search products..."
+                className="pl-10 pr-4 w-full"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+              />
+            </form>
+
+            <nav className="flex flex-col gap-1">
+              <Link
+                href="/#hero"
+                className="rounded-md px-3 py-2 text-sm font-medium hover:bg-muted"
+                onClick={closeMobileMenu}
+              >
+                Home
+              </Link>
+              <Link
+                href="/#products"
+                className="rounded-md px-3 py-2 text-sm font-medium hover:bg-muted"
+                onClick={closeMobileMenu}
+              >
+                Products
+              </Link>
+              <Link
+                href="/#about"
+                className="rounded-md px-3 py-2 text-sm font-medium hover:bg-muted"
+                onClick={closeMobileMenu}
+              >
+                About
+              </Link>
+              <Link
+                href="/suppliers"
+                className="rounded-md px-3 py-2 text-sm font-medium hover:bg-muted"
+                onClick={closeMobileMenu}
+              >
+                Suppliers
+              </Link>
+            </nav>
+          </div>
+        )}
       </div>
     </header>
   );

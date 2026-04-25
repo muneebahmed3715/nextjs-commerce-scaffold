@@ -5,7 +5,7 @@ import { SafeImage } from '@/components/ui/safe-image';
 
 export function HeroSection() {
   return (
-    <section className="relative bg-linear-to-r from-blue-600 to-blue-800 text-white">
+    <section id="hero" className="relative bg-linear-to-r from-blue-600 to-blue-800 text-white">
       <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-16 lg:py-24">
         <div className="grid lg:grid-cols-2 gap-12 items-center">
           <div className="space-y-8">

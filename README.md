@@ -174,11 +174,7 @@ Contributions are welcome.
 4. Run lint and ensure build passes.
 5. Open a pull request describing scope, screenshots, and testing notes.
 
-## 13. License
-
-This project is licensed under the MIT License. Add a `LICENSE` file if not already present.
-
-## 14. Author
+## 13. Author
 
 **Your Name**  
 [LinkedIn](https://www.linkedin.com/) | [GitHub](https://github.com/)
